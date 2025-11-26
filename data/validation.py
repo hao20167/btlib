@@ -114,6 +114,7 @@ def validate_dataframe(df: pd.DataFrame, strict: bool = True) -> Dict[str, Any]:
     if report["errors"]:
         report["ok"] = False
         if strict:
+            print(df.head(10))
             raise ValidationError("Invalid input data: " + "; ".join(report["errors"]))
 
     return report

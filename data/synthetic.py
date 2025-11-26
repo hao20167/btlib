@@ -18,7 +18,7 @@ def generate_random_walk(
     steps = rng.normal(loc=mu, scale=sigma, size=n)
     prices = start_price + np.cumsum(steps)
 
-    index = pd.date_range(start="2000-01-01", periods=n, freq=freq)
+    index = pd.date_range(start=start, periods=n, freq=freq)
     close = prices
     open_ = np.concatenate([[prices[0]], prices[:-1]])
     high = np.maximum(open_, close) + np.abs(rng.normal(0, sigma * 0.5, size=n))

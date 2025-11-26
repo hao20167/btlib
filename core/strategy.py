@@ -4,10 +4,11 @@ from .events import SignalEvent, OrderSide
 
 
 class Strategy(ABC):
-    def __init__(self, data: pd.DataFrame, symbol: str):
+    def __init__(self, data: pd.DataFrame, symbol: str, **kwargs):
         self.data = data
         self.symbol = symbol
         self.i = 0
+        self.params = kwargs
     
     def on_start(self):
         pass

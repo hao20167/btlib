@@ -59,6 +59,6 @@ class AccountState:
     def total_value(self, prices: Dict[str, float]) -> float:
         value = self.cash
         for sym, pos in self.positions.items():
-            last_price = prices.get(sym, pos.avg_price) # why pos.avg_price?
+            last_price = prices.get(sym, pos.avg_price) # default=pos.avg_price
             value += pos.size * last_price
         return value

@@ -7,17 +7,20 @@ from .events import MarketEvent, SignalEvent
 from btlib.portfolio.account import AccountState
 from btlib.portfolio.broker import Broker
 from btlib.execution.orders import OrderSide, Order
+from btlib.portfolio.account import Trade
 
 
 @dataclass
 class BacktestResult:
     equity_curve: pd.Series
     account_history: pd.DataFrame
-    trades: List # SEE THIS
+    trades: List[Trade]
+    account: AccountState
 
 
 class Backtest:
-    def __init__(self, data: pd.DataFrame, 
+    def __init__(self, 
+        data: pd.DataFrame, 
         symbol: str, 
         strategy_class: type[Strategy], 
         initial_cash: float, 
@@ -27,23 +30,23 @@ class Backtest:
     ):
         self.data = data
         self.symbol = symbol
-        self.strategy = strategy_class(data, symbol, **strategy_kwargs)
+        self.strategy_class = strategy_class(data, symbol, **strategy_kwargs)
         self.account = AccountState(cash=initial_cash)
         self.broker = Broker(self.account, slippage_bps=slippage_bps, commission_rate=commission_rate)
 
-        self._equity_records = List[tuple] = []
-        self._account_snapshots = List[Dict] = []
+        self._equity_records = []
+        self._account_snapshots = []
     
     def run(self) -> BacktestResult:
-        self.strategy.on_start()
+        self.strategy_class.on_start()
         index = self.data.index
 
         for i, ts in enumerate(index):
-            self.strategy.i = i
+            self.strategy_class.i = i
             bar = self.data.iloc[i]
 
             mkt_event = MarketEvent(timestamp=ts, data=bar)
-            signals: list[SignalEvent] = self.strategy.on_bar()
+            signals: list[SignalEvent] = self.strategy_class.on_bar()
             orders: list[Order] = []
             for sig in signals:
                 orders.append(
@@ -68,7 +71,7 @@ class Backtest:
                 }
             )
         
-        self.strategy.on_end()
+        self.strategy_class.on_end()
 
         equity_series = pd.Series(
             [v for _, v in self._equity_records],
@@ -79,8 +82,9 @@ class Backtest:
 
         return BacktestResult(
             equity_curve=equity_series,
-            account_history=account_df
-            trades=[],
+            account_history=account_df,
+            trades=self.account.trades,
+            account=self.account
         )
 
             
