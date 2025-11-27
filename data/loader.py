@@ -7,6 +7,11 @@ def load_price(path: str, start=None, end=None) -> pd.DataFrame:
         raise FileNotFoundError(path)
     
     df = pd.read_csv(path)
+    df.index = df['datetime']
+    df.index = pd.to_datetime(df.index)
+    df.index = df.index.tz_convert(None)
+
+    # print('this is ', pd.to_datetime(df.index[0]) >= pd.to_datetime(start))
     # df = pd.read_csv(path, parse_dates=["datetime"], index_col="datetime")
 
     _ = validate_dataframe(df=df, strict=True)

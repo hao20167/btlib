@@ -52,7 +52,7 @@ class Backtest:
                 orders.append(
                     Order(timestamp=sig.timestamp,
                         symbol=sig.symbol,
-                        side=sig.symbol,
+                        side=sig.side,
                         size=sig.size
                     )
                 )
